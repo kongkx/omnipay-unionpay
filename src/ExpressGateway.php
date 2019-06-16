@@ -269,42 +269,6 @@ class ExpressGateway extends AbstractGateway
     }
 
 
-    public function setCertDir($value)
-    {
-        return $this->setParameter('certDir', $value);
-    }
-
-
-    public function getCertDir()
-    {
-        return $this->getParameter('certDir');
-    }
-
-
-    public function setCertPath($value)
-    {
-        return $this->setParameter('certPath', $value);
-    }
-
-
-    public function getCertPath()
-    {
-        return $this->getParameter('certPath');
-    }
-
-
-    public function setCertPassword($value)
-    {
-        return $this->setParameter('certPassword', $value);
-    }
-
-
-    public function getCertPassword()
-    {
-        return $this->getParameter('certPassword');
-    }
-
-
     public function setOrderDesc($value)
     {
         return $this->setParameter('orderDesc', $value);
@@ -341,12 +305,36 @@ class ExpressGateway extends AbstractGateway
     }
 
 
+    public function setCertPath($value)
+    {
+        return $this->setParameter('certPath', $value);
+    }
+
+
+    public function getCertPath()
+    {
+        return $this->getParameter('certPath');
+    }
+
+
+    public function setCertPassword($value)
+    {
+        return $this->setParameter('certPassword', $value);
+    }
+
+
+    public function getCertPassword()
+    {
+        return $this->getParameter('certPassword');
+    }
+
+
     /**
      * @return mixed
      */
     public function getCertId()
     {
-        return $this->getParameter('cert_id');
+        return $this->getParameter('certId');
     }
 
 
@@ -357,7 +345,7 @@ class ExpressGateway extends AbstractGateway
      */
     public function setCertId($value)
     {
-        return $this->setParameter('cert_id', $value);
+        return $this->setParameter('certId', $value);
     }
 
 

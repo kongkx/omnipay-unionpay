@@ -83,26 +83,6 @@ class WtzSmsOpenRequest extends WtzAbstractRequest
     /**
      * @return mixed
      */
-    public function getAccNo()
-    {
-        return $this->getParameter('accNo');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setAccNo($value)
-    {
-        return $this->setParameter('accNo', $value);
-    }
-
-
-    /**
-     * @return mixed
-     */
     public function getPayTimeout()
     {
         return $this->getParameter('payTimeout');
@@ -130,13 +110,6 @@ class WtzSmsOpenRequest extends WtzAbstractRequest
     public function sendData($data)
     {
         $data = $this->httpRequest('back', $data);
-
-        $env        = $this->getEnvironment();
-        $rootCert   = $this->getRootCert();
-        $middleCert = $this->getMiddleCert();
-
-        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
-
         return $this->response = new WtzSmsOpenResponse($this, $data);
     }
 }

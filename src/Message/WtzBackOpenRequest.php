@@ -85,27 +85,6 @@ class WtzBackOpenRequest extends WtzAbstractRequest
         return $this->setParameter('trId', $value);
     }
 
-
-    /**
-     * @return mixed
-     */
-    public function getAccNo()
-    {
-        return $this->getParameter('accNo');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setAccNo($value)
-    {
-        return $this->setParameter('accNo', $value);
-    }
-
-
     /**
      * @return mixed
      */
@@ -127,53 +106,6 @@ class WtzBackOpenRequest extends WtzAbstractRequest
 
 
     /**
-     * @return mixed
-     */
-    public function getCustomerInfo()
-    {
-        return $this->getParameter('customerInfo');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setCustomerInfo($value)
-    {
-        return $this->setParameter('customerInfo', $value);
-    }
-
-
-    protected function getEncryptCustomerInfo()
-    {
-        $data = $this->getCustomerInfo();
-
-        if (empty($data)) {
-            return '';
-        }
-
-        $toEncrypt = array();
-        $protect   = array('phoneNo', 'cvn2', 'expired', 'certifTp', 'certifId');
-
-        foreach ($data as $key => $value) {
-            if (in_array($key, $protect)) {
-                $toEncrypt[$key] = $data[$key];
-                unset($data[$key]);
-            }
-        }
-
-        if (count($toEncrypt) > 0) {
-            $payload               = urldecode(http_build_query($toEncrypt));
-            $data['encryptedInfo'] = $this->encrypt($payload);
-        }
-
-        return base64_encode("{" . urldecode(http_build_query($data)) . "}");
-    }
-
-
-    /**
      * Send the request with specified data
      *
      * @param  mixed $data The data to send
@@ -183,13 +115,6 @@ class WtzBackOpenRequest extends WtzAbstractRequest
     public function sendData($data)
     {
         $data = $this->httpRequest('back', $data);
-
-        $env        = $this->getEnvironment();
-        $rootCert   = $this->getRootCert();
-        $middleCert = $this->getMiddleCert();
-
-        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
-
         return $this->response = new WtzBackOpenResponse($this, $data);
     }
 }

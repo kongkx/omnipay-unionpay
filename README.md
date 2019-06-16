@@ -311,11 +311,6 @@ var_dump($response->getData());
 
 ```
 
-## Related
-
-- [Laravel-Omnipay](https://github.com/ignited/laravel-omnipay)
-- [Omnipay-Alipay](https://github.com/lokielse/omnipay-alipay)
-- [Omnipay-WechatPay](https://github.com/lokielse/omnipay-wechatpay)
 
 ## Support
 
@@ -343,4 +338,4 @@ or better yet, fork the library and submit a pull request.
   UNIONPAY_WTZ_MER_ID={merId} UNIONPAY_WTZ_TOKEN_ORDER_ID={orderId} UNIONPAY_WTZ_TOKEN_TXN_TIME={txnTime} phpunit 
   ```
 
-- 无跳转支付支付的测试 只能保证 报文格式正确
+- 测试 只能保证 报文格式正确

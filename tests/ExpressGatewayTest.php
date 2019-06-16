@@ -117,10 +117,9 @@ class ExpressGatewayTest extends GatewayTestCase
          */
         $response = $this->gateway->query($params)->send();
         $data = $response->getData();
-
         $this->assertTrue($data['verify_success']);
 
-        $code = $this->codeFromRespMsg($data['respMsg']);
+        $code = $response->getCodeFromRespMsg();
         $this->assertNotEquals("6100030", $code, $data['respMsg']);  // 报文格式错误
     }
 

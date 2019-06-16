@@ -2,7 +2,6 @@
 
 namespace Omnipay\UnionPay\Message;
 
-use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\UnionPay\Common\DecryptHelper;
 
 /**
@@ -22,18 +21,9 @@ class WtzOpenQueryResponse extends AbstractResponse
         return $this->data['activateStatus'];
     }
 
-
     public function getPayCardType()
     {
         return $this->data['payCardType'];
-    }
-
-    public function getCustomerInfo()
-    {
-        $cert = $this->request->getCertPath();
-        $pass = $this->request->getCertPassword();
-
-        return DecryptHelper::decryptCustomerInfo($this->data['customerInfo'], $cert, $pass);
     }
 
     public function getTokenPayData()

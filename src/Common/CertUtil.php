@@ -45,4 +45,16 @@ class CertUtil
 
         return $company[2];
     }
+
+    public static function decryptWithPrivateKey($payload, $privateKey)
+    {
+        openssl_private_decrypt($payload, $decrypted, $privateKey);
+        return $decrypted;
+    }
+
+    public static function decryptWithCert($payload, $cert, $pass)
+    {
+        $privateKey = self::readPrivateKeyFromCert($cert, $pass);
+        return self::decryptWithPrivateKey($payload, $privateKey);
+    }
 }

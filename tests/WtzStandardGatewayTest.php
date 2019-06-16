@@ -56,7 +56,7 @@ class WtzStandardGatewayTest extends GatewayTestCase
 
     private function sleep()
     {
-        sleep(5);
+//        sleep(5);
     }
 
 
@@ -138,7 +138,6 @@ class WtzStandardGatewayTest extends GatewayTestCase
          */
         $response = $this->gateway->backOpen($params)->send();
         $data = $response->getData();
-
         // 可能存在 无此交易权限[6131010] 的情况
         $this->assertTrue($data['verify_success']);
     }

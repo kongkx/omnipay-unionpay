@@ -22,11 +22,22 @@ class WtzGateway extends ExpressGateway
 
     public function getDefaultParameters()
     {
-        $params = parent::getDefaultParameters();
-
-        $params['version'] = '5.1.0';
-
-        return $params;
+        return array(
+            'version'        => '5.1.0',
+            'encoding'       => 'utf-8',
+            'txnType'        => '01',
+            'txnSubType'     => '01',
+            'bizType'        => '000201',
+            'signMethod'     => '01',
+            'channelType'    => '08', //07-PC，08-手机
+            'accessType'     => '0',
+            'currencyCode'   => '156',
+            'orderDesc'      => 'an order',
+            'reqReserved'    => '',
+            'defaultPayType' => '0001',
+            'environment'    => 'sandbox',
+            'encryptSensitive' => true,
+        );
     }
 
 

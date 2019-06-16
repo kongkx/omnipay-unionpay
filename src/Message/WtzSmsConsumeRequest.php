@@ -93,27 +93,6 @@ class WtzSmsConsumeRequest extends WtzAbstractRequest
         return $this->setParameter('trId', $value);
     }
 
-
-    /**
-     * @return mixed
-     */
-    public function getToken()
-    {
-        return $this->getParameter('token');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setToken($value)
-    {
-        return $this->setParameter('token', $value);
-    }
-
-
     /**
      * Send the request with specified data
      *
@@ -124,13 +103,6 @@ class WtzSmsConsumeRequest extends WtzAbstractRequest
     public function sendData($data)
     {
         $data = $this->httpRequest('back', $data);
-
-        $env        = $this->getEnvironment();
-        $rootCert   = $this->getRootCert();
-        $middleCert = $this->getMiddleCert();
-
-        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
-
         return $this->response = new WtzSmsConsumeResponse($this, $data);
     }
 }

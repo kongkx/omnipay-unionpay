@@ -36,18 +36,6 @@ class ExpressCompletePurchaseRequest extends AbstractRequest
     }
 
 
-    public function setCertDir($value)
-    {
-        $this->setParameter('certDir', $value);
-    }
-
-
-    public function getCertDir()
-    {
-        return $this->getParameter('certDir');
-    }
-
-
     public function getRequestParam($key)
     {
         $params = $this->getRequestParams();
@@ -68,18 +56,6 @@ class ExpressCompletePurchaseRequest extends AbstractRequest
      */
     public function sendData($data)
     {
-        $signer = new Signer($data);
-        $signer->setIgnores(array('signature'));
-        $content   = $signer->getContentToSign();
-        $publicKey = $this->getPublicKey();
-
-        if (! $this->getPublicKey()) {
-            $publicKey = Signer::findPublicKey($data['certId'], $this->getCertDir());
-        }
-
-        $data['verify_success'] = $signer->verifyWithRSA($content, $data['signature'], $publicKey);
-
-        $data['is_paid'] = $data['verify_success'] && ($this->getRequestParam('respCode') == '00');
 
         return $this->response = new ExpressCompletePurchaseResponse($this, $data);
     }

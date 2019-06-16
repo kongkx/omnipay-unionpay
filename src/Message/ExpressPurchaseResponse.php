@@ -102,20 +102,4 @@ eot;
 
         return $html;
     }
-
-
-    /**
-     * @deprecated use $gateway->createOrder() instead
-     * @return null|string
-     */
-    public function getTradeNo()
-    {
-        $data = $this->getRequest()->getHttpRequest('app', $this->data);
-
-        if (isset($data['tn'])) {
-            return $data['tn'];
-        } else {
-            return null;
-        }
-    }
 }

@@ -80,13 +80,6 @@ class WtzConsumeUndoRequest extends WtzAbstractRequest
     public function sendData($data)
     {
         $data = $this->httpRequest('back', $data);
-
-        $env        = $this->getEnvironment();
-        $rootCert   = $this->getRootCert();
-        $middleCert = $this->getMiddleCert();
-
-        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
-
         return $this->response = new WtzConsumeResponse($this, $data);
     }
 }

@@ -37,6 +37,8 @@ class WtzTokenGatewayTest extends GatewayTestCase
             'orderId' => getenv('UNIONPAY_WTZ_TOKEN_ORDER_ID') ?: '20190608021356',
             'txnTime' => getenv('UNIONPAY_WTZ_TOKEN_TXN_TIME') ?: '20190608021356',
         ];
+
+        date_default_timezone_set('PRC');
     }
 
 
@@ -148,7 +150,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
 
     public function testSmsOpen()
     {
-        date_default_timezone_set('PRC');
 
         $params = array(
             'orderId'      => date('YmdHis'),
@@ -170,7 +171,9 @@ class WtzTokenGatewayTest extends GatewayTestCase
          * @var \Omnipay\UnionPay\Message\WtzSmsOpenResponse $response
          */
         $response = $this->gateway->smsOpen($params)->send();
-        $this->assertTrue($response->isSuccessful());
+
+        $data = $response->getData();
+        $this->assertTrue($data['verify_success']);
     }
 
 
@@ -198,7 +201,11 @@ class WtzTokenGatewayTest extends GatewayTestCase
          * @var \Omnipay\UnionPay\Message\WtzOpenQueryResponse $response
          */
         $response = $this->gateway->openQuery($params)->send();
-        $this->assertTrue($response->isSuccessful());
+
+        $data = $response->getData();
+        $this->assertTrue($data['verify_success']);
+        $customerInfo = $response->getCustomerInfo();
+        $this->assertTrue(array_key_exists('phoneNo', $customerInfo));
 
         return [
             'params' => $params,
@@ -251,11 +258,9 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $response = $request->send();
         
         $data = $response->getData();
-        $code = $this->codeFromRespMsg($data['respMsg']);
-
         $this->assertTrue($data['verify_success']);
         // 6100030 格式错误
-        $this->assertNotEquals("6100030", $code, $data['respMsg']);
+        $this->assertNotEquals("6100030", $response->getCodeFromRespMsg(), $data['respMsg']);
 
         return [
             'params' => $params,
@@ -279,9 +284,7 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $response = $this->gateway->query($params)->send();
         $data = $response->getData();
         $this->assertTrue($data['verify_success']);
-
-        $code = $this->codeFromRespMsg($data['respMsg']);
-        $this->assertNotEquals("6100030", $code, $data['respMsg']);
+        $this->assertNotEquals("6100030", $response->getCodeFromRespMsg(), $data['respMsg']);
     }
 
 
@@ -308,8 +311,7 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $response = $this->gateway->refund($params)->send();
         $data = $response->getData();
         $this->assertTrue($data['verify_success']);
-        $code = $this->codeFromRespMsg($data['respMsg']);
-        $this->assertNotEquals("6100030", $code, $data['respMsg']);
+        $this->assertNotEquals("6100030", $response->getCodeFromRespMsg(), $data['respMsg']);
     }
 
 
@@ -365,6 +367,5 @@ class WtzTokenGatewayTest extends GatewayTestCase
          */
         $response = $this->gateway->deleteToken($params)->send();
         $this->assertTrue($response->getData()['verify_success']);
-        // $this->assertFalse($response->isSuccessful());
     }
 }

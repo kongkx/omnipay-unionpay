@@ -487,7 +487,7 @@ abstract class AbstractRequest extends BaseAbstractRequest
 
         $response = $this->httpClient->request('POST', $url, $headers, $body)->getBody();
 
-        $payload  = StringUtil::parseFuckStr($response);
+        $payload  = StringUtil::parseString($response);
 
         return $payload;
     }

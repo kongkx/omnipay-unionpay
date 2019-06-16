@@ -9,7 +9,7 @@ namespace Omnipay\UnionPay\Common;
  */
 class StringUtil
 {
-    public static function parseFuckStr($str, $data = array())
+    public static function parseString($str, $data = array())
     {
         preg_match_all('#(?<k>[^=]+)=(?<v>[^&{]+|{[^}]+}|\[[^]]+])&?#', $str, $matches);
 

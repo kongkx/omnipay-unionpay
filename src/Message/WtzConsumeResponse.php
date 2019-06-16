@@ -2,7 +2,6 @@
 
 namespace Omnipay\UnionPay\Message;
 
-use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\UnionPay\Common\DecryptHelper;
 
 /**
@@ -15,12 +14,6 @@ class WtzConsumeResponse extends AbstractResponse
      * @var WtzSmsConsumeRequest
      */
     protected $request;
-
-
-    public function isSuccessful()
-    {
-        return isset($this->data['respCode']) && $this->data['respCode'] == '00' && $this->data['verify_success'];
-    }
 
 
     public function getCustomerInfo()

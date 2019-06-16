@@ -19,7 +19,7 @@ class ExpressPurchaseRequest extends AbstractRequest
      */
     public function getData()
     {
-        $this->validateData();
+        $this->validate('returnUrl', 'notifyUrl', 'merId', 'orderId', 'txnTime', 'txnAmt');
 
         $data = array(
             //版本号
@@ -91,12 +91,6 @@ class ExpressPurchaseRequest extends AbstractRequest
     }
 
 
-    private function validateData()
-    {
-        $this->validate('returnUrl', 'notifyUrl', 'merId', 'orderId', 'txnTime', 'txnAmt');
-    }
-
-
     /**
      * Send the request with specified data
      *
@@ -107,14 +101,5 @@ class ExpressPurchaseRequest extends AbstractRequest
     public function sendData($data)
     {
         return $this->response = new ExpressPurchaseResponse($this, $data);
-    }
-
-
-    /**
-     * @deprecated
-     */
-    public function getHttpRequest($method, $data)
-    {
-        return $this->httpRequest($method, $data);
     }
 }

@@ -89,26 +89,6 @@ class WtzConsumeRequest extends WtzAbstractRequest
 
 
     /**
-     * @return mixed
-     */
-    public function getToken()
-    {
-        return $this->getParameter('token');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setToken($value)
-    {
-        return $this->setParameter('token', $value);
-    }
-
-
-    /**
      * Send the request with specified data
      *
      * @param  mixed $data The data to send
@@ -118,12 +98,6 @@ class WtzConsumeRequest extends WtzAbstractRequest
     public function sendData($data)
     {
         $data = $this->httpRequest('back', $data);
-
-        $env        = $this->getEnvironment();
-        $rootCert   = $this->getRootCert();
-        $middleCert = $this->getMiddleCert();
-
-        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
 
         return $this->response = new WtzConsumeResponse($this, $data);
     }

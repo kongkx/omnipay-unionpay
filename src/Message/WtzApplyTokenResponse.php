@@ -2,7 +2,6 @@
 
 namespace Omnipay\UnionPay\Message;
 
-use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\UnionPay\Common\DecryptHelper;
 
 /**
