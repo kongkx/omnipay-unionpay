@@ -3,6 +3,7 @@
 namespace Omnipay\UnionPay\Message;
 
 use Omnipay\Common\Message\ResponseInterface;
+use Omnipay\UnionPay\Common\ResponseHelper;
 
 /**
  * Class ExpressQueryRequest
@@ -19,12 +20,12 @@ class ExpressQueryRequest extends AbstractRequest
      */
     public function getData()
     {
-        $this->validate('orderId', 'txnTime', 'txnAmt');
+        $this->validate('orderId', 'txnTime');
 
         $data = array(
             'version'     => $this->getVersion(),
             'encoding'    => $this->getEncoding(),
-            'certId'      => $this->getCertId(),
+            'certId'      => $this->getTheCertId(),
             'signMethod'  => $this->getSignMethod(),
             'txnType'     => '00',
             'txnSubType'  => '00',
@@ -38,7 +39,7 @@ class ExpressQueryRequest extends AbstractRequest
 
         $data = $this->filter($data);
 
-        $data['signature'] = $this->sign($data);
+        $data['signature'] = $this->sign($data, 'RSA2');
 
         return $data;
     }
@@ -55,6 +56,12 @@ class ExpressQueryRequest extends AbstractRequest
     {
         $data = $this->httpRequest('query', $data);
 
+        $env        = $this->getEnvironment();
+        $rootCert   = $this->getRootCert();
+        $middleCert = $this->getMiddleCert();
+
+        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
+        
         return $this->response = new ExpressResponse($this, $data);
     }
 }

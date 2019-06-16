@@ -3,6 +3,7 @@
 namespace Omnipay\UnionPay\Message;
 
 use Omnipay\Common\Message\ResponseInterface;
+use Omnipay\UnionPay\Common\ResponseHelper;
 
 /**
  * Class ExpressRefundRequest
@@ -24,7 +25,7 @@ class ExpressRefundRequest extends AbstractRequest
         $data = array(
             'version'     => $this->getVersion(),     //版本号
             'encoding'    => $this->getEncoding(),        //编码方式
-            'certId'      => $this->getCertId(),    //证书ID
+            'certId'      => $this->getTheCertId(),    //证书ID
             'signMethod'  => $this->getSignMethod(),        //签名方法
             'txnType'     => '04',        //交易类型
             'txnSubType'  => '00',        //交易子类
@@ -44,7 +45,7 @@ class ExpressRefundRequest extends AbstractRequest
 
         $data = $this->filter($data);
 
-        $data['signature'] = $this->sign($data);
+        $data['signature'] = $this->sign($data, 'RSA2');
 
         return $data;
     }
@@ -72,6 +73,12 @@ class ExpressRefundRequest extends AbstractRequest
     public function sendData($data)
     {
         $data = $this->httpRequest('back', $data);
+
+        $env        = $this->getEnvironment();
+        $rootCert   = $this->getRootCert();
+        $middleCert = $this->getMiddleCert();
+
+        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
 
         return $this->response = new ExpressResponse($this, $data);
     }

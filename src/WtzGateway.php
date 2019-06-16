@@ -30,67 +30,6 @@ class WtzGateway extends ExpressGateway
     }
 
 
-
-    /**
-     * @return mixed
-     */
-    public function getEncryptCert()
-    {
-        return $this->getParameter('encryptCert');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setEncryptCert($value)
-    {
-        return $this->setParameter('encryptCert', $value);
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getMiddleCert()
-    {
-        return $this->getParameter('middleCert');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setMiddleCert($value)
-    {
-        return $this->setParameter('middleCert', $value);
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getRootCert()
-    {
-        return $this->getParameter('rootCert');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setRootCert($value)
-    {
-        return $this->setParameter('rootCert', $value);
-    }
-
-
     /**
      * 银联侧开通：前台交易，有前台通知，后通知
      *

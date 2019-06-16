@@ -24,11 +24,11 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $this->gateway->setMerId(UNIONPAY_WTZ_MER_ID);
         $this->gateway->setEncryptSensitive(true);
         $this->gateway->setBizType('000902');
-        $this->gateway->setEncryptCert(UNIONPAY_TWZ_ENCRYPT_CERT);
-        $this->gateway->setMiddleCert(UNIONPAY_TWZ_MIDDLE_CERT);
-        $this->gateway->setRootCert(UNIONPAY_TWZ_ROOT_CERT);
-        $this->gateway->setCertPath(UNIONPAY_TWZ_SIGN_CERT);
-        $this->gateway->setCertPassword(UNIONPAY_CERT_PASSWORD);
+        $this->gateway->setEncryptCert(UNIONPAY_510_ENCRYPT_CERT);
+        $this->gateway->setMiddleCert(UNIONPAY_510_MIDDLE_CERT);
+        $this->gateway->setRootCert(UNIONPAY_510_ROOT_CERT);
+        $this->gateway->setCertPath(UNIONPAY_510_SIGN_CERT);
+        $this->gateway->setCertPassword(UNIONPAY_510_CERT_PASSWORD);
         $this->gateway->setReturnUrl('http://example.com/return');
         $this->gateway->setNotifyUrl('http://www.specialUrl.com');
 

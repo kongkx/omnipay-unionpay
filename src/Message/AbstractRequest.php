@@ -17,6 +17,9 @@ abstract class AbstractRequest extends BaseAbstractRequest
 
     protected $productionEndpoint = 'https://gateway.95516.com/gateway/api/';
 
+    protected $productionFileEndpoint = 'https://filedownload.95516.com/';
+    protected $sandboxFileEndpoint = 'https://filedownload.test.95516.com/';
+
     protected $methods = array(
         'front' => 'frontTransReq.do',
         'back'  => 'backTransReq.do',
@@ -32,6 +35,14 @@ abstract class AbstractRequest extends BaseAbstractRequest
         } else {
             return $this->sandboxEndpoint . $this->methods[$type];
         }
+    }
+
+    public function getFileEndpoint()
+    {
+        if ($this->getEnvironment() === 'production') {
+            return $this->productionFileEndpoint;
+        }
+        return $this->sandboxFileEndpoint;
     }
 
 
@@ -391,6 +402,47 @@ abstract class AbstractRequest extends BaseAbstractRequest
     }
 
 
+
+    /**
+     * @return mixed
+     */
+    public function getMiddleCert()
+    {
+        return $this->getParameter('middleCert');
+    }
+
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setMiddleCert($value)
+    {
+        return $this->setParameter('middleCert', $value);
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getRootCert()
+    {
+        return $this->getParameter('rootCert');
+    }
+
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setRootCert($value)
+    {
+        return $this->setParameter('rootCert', $value);
+    }
+
+
     /**
      * @return bool
      */
@@ -421,7 +473,12 @@ abstract class AbstractRequest extends BaseAbstractRequest
      */
     protected function httpRequest($method, $data)
     {
-        $url  = $this->getEndpoint($method);
+        if ($method === 'file') {
+            $url = $this->getFileEndpoint();
+        } else {
+            $url  = $this->getEndpoint($method);
+        }
+
         $body = http_build_query($data);
 
         $headers = [

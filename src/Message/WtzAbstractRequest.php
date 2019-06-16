@@ -32,45 +32,6 @@ abstract class WtzAbstractRequest extends AbstractRequest
     /**
      * @return mixed
      */
-    public function getMiddleCert()
-    {
-        return $this->getParameter('middleCert');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setMiddleCert($value)
-    {
-        return $this->setParameter('middleCert', $value);
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getRootCert()
-    {
-        return $this->getParameter('rootCert');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setRootCert($value)
-    {
-        return $this->setParameter('rootCert', $value);
-    }
-
-    /**
-     * @return mixed
-     */
     public function getAccNo()
     {
         return $this->getParameter('accNo');

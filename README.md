@@ -33,10 +33,8 @@ And run composer to update your dependencies:
 
 The following gateways are provided by this package:
 
-- Union_Wtz (Union No Redirect Payment) 银联无跳转支付（alpha）
-- Union_Express (Union Express Payment) 银联全产品网关（PC，APP，WAP 支付）
-- Union_LegacyMobile (Union Legacy Mobile Payment) 银联老网关（APP）
-- Union_LegacyQuickPay (Union Legacy QuickPay Payment) 银联老网关（PC）
+- Union_Wtz (Union No Redirect Payment) 银联无跳转支付（alpha）Version: 5.1.0
+- Union_Express (Union Express Payment) 银联全产品网关（PC，APP，WAP 支付） Version: 5.1.0
 
 ## Express Gateway Usage
 

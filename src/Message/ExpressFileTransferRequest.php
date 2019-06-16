@@ -3,6 +3,7 @@
 namespace Omnipay\UnionPay\Message;
 
 use Omnipay\Common\Message\ResponseInterface;
+use Omnipay\UnionPay\Common\ResponseHelper;
 
 /**
  * Class ExpressFileTransferRequest
@@ -24,7 +25,7 @@ class ExpressFileTransferRequest extends AbstractRequest
         $data = array(
             'version'    => $this->getVersion(),        //版本号
             'encoding'   => $this->getEncoding(),        //编码方式
-            'certId'     => $this->getCertId(),    //证书ID
+            'certId'     => $this->getTheCertId(),    //证书ID
             'txnType'    => '76',        //交易类型
             'signMethod' => $this->getSignMethod(),        //签名方法
             'txnSubType' => '01',        //交易子类
@@ -38,33 +39,9 @@ class ExpressFileTransferRequest extends AbstractRequest
 
         $data = $this->filter($data);
 
-        $data['signature'] = $this->sign($data);
+        $data['signature'] = $this->sign($data, 'RSA2');
 
         return $data;
-    }
-
-
-    public function getFileType()
-    {
-        return $this->getParameter('fileType');
-    }
-
-
-    public function setQueryId($value)
-    {
-        $this->setParameter('queryId', $value);
-    }
-
-
-    public function getQueryId()
-    {
-        return $this->getParameter('queryId');
-    }
-
-
-    public function setSettleDate($value)
-    {
-        $this->setParameter('settleDate', $value);
     }
 
 
@@ -73,10 +50,20 @@ class ExpressFileTransferRequest extends AbstractRequest
         return $this->getParameter('settleDate');
     }
 
+    public function setSettleDate($value)
+    {
+        return $this->setParameter('settleDate', $value);
+    }
+
+    public function getFileType()
+    {
+        return $this->getParameter('fileType');
+    }
+
 
     public function setFileType($value)
     {
-        $this->setParameter('fileType', $value);
+        return $this->setParameter('fileType', $value);
     }
 
 
@@ -89,7 +76,13 @@ class ExpressFileTransferRequest extends AbstractRequest
      */
     public function sendData($data)
     {
-        $data = $this->httpRequest('back', $data);
+        $data = $this->httpRequest('file', $data);
+
+        $env        = $this->getEnvironment();
+        $rootCert   = $this->getRootCert();
+        $middleCert = $this->getMiddleCert();
+
+        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
 
         return $this->response = new ExpressResponse($this, $data);
     }

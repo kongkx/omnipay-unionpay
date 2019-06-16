@@ -25,7 +25,7 @@ class ExpressGateway extends AbstractGateway
     public function getDefaultParameters()
     {
         return array(
-            'version'        => '5.0.0',
+            'version'        => '5.1.0',
             'encoding'       => 'utf-8',
             'txnType'        => '01',
             'txnSubType'     => '01',
@@ -40,6 +40,66 @@ class ExpressGateway extends AbstractGateway
             'environment'    => 'sandbox',
             'encryptSensitive' => true,
         );
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getEncryptCert()
+    {
+        return $this->getParameter('encryptCert');
+    }
+
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setEncryptCert($value)
+    {
+        return $this->setParameter('encryptCert', $value);
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getMiddleCert()
+    {
+        return $this->getParameter('middleCert');
+    }
+
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setMiddleCert($value)
+    {
+        return $this->setParameter('middleCert', $value);
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getRootCert()
+    {
+        return $this->getParameter('rootCert');
+    }
+
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setRootCert($value)
+    {
+        return $this->setParameter('rootCert', $value);
     }
 
 

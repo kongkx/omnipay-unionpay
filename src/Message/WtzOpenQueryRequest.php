@@ -4,7 +4,7 @@ namespace Omnipay\UnionPay\Message;
 
 use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\UnionPay\Common\CertUtil;
-use Omnipay\UnionPay\Common\ResponseVerifyHelper;
+use Omnipay\UnionPay\Common\ResponseHelper;
 
 /**
  * Class WtzOpenQueryRequest
@@ -87,7 +87,7 @@ class WtzOpenQueryRequest extends WtzAbstractRequest
         $rootCert   = $this->getRootCert();
         $middleCert = $this->getMiddleCert();
 
-        $data['verify_success'] = ResponseVerifyHelper::verify($data, $env, $rootCert, $middleCert);
+        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
 
         return $this->response = new WtzOpenQueryResponse($this, $data);
     }

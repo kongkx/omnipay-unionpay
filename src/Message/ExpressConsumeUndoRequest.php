@@ -3,6 +3,7 @@
 namespace Omnipay\UnionPay\Message;
 
 use Omnipay\Common\Message\ResponseInterface;
+use Omnipay\UnionPay\Common\ResponseHelper;
 
 /**
  * Class ExpressConsumeUndoRequest
@@ -44,7 +45,7 @@ class ExpressConsumeUndoRequest extends AbstractRequest
 
         $data = $this->filter($data);
 
-        $data['signature'] = $this->sign($data);
+        $data['signature'] = $this->sign($data, 'RSA2');
 
         return $data;
     }
@@ -52,32 +53,13 @@ class ExpressConsumeUndoRequest extends AbstractRequest
 
     public function getQueryId()
     {
-        $this->getParameter('queryId');
+        return $this->getParameter('queryId');
     }
 
 
     public function setQueryId($value)
     {
-        $this->setParameter('queryId', $value);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOrigQryId()
-    {
-        return $this->getParameter('origQryId');
-    }
-
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setOrigQryId($value)
-    {
-        return $this->setParameter('origQryId', $value);
+        return $this->setParameter('queryId', $value);
     }
 
 
@@ -91,6 +73,12 @@ class ExpressConsumeUndoRequest extends AbstractRequest
     public function sendData($data)
     {
         $data = $this->httpRequest('back', $data);
+
+        $env        = $this->getEnvironment();
+        $rootCert   = $this->getRootCert();
+        $middleCert = $this->getMiddleCert();
+
+        $data['verify_success'] = ResponseHelper::verify($data, $env, $rootCert, $middleCert);
 
         return $this->response = new ExpressResponse($this, $data);
     }

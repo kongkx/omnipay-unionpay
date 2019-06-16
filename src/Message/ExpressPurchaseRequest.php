@@ -29,7 +29,7 @@ class ExpressPurchaseRequest extends AbstractRequest
             //证书ID
             'certId'         => $this->getTheCertId(),
             //交易类型
-            'txnType'        => $this->getTxnSubType() ?: '01',
+            'txnType'        => $this->getTxnType() ?: '01',
             //交易子类
             'txnSubType'     => $this->getTxnSubType() ?: '01',
             //业务类型
@@ -60,19 +60,40 @@ class ExpressPurchaseRequest extends AbstractRequest
             'orderDesc'      => $this->getOrderDesc(),
             //请求方保留域，透传字段，查询、通知、对账文件中均会原样出现
             'reqReserved'    => $this->getReqReserved(),
+            // 风控信息域
+            'riskRateInfo'   => $this->getPlainRiskRateInfo(),
         );
 
         $data = $this->filter($data);
 
-        $data['signature'] = $this->sign($data);
+        $data['signature'] = $this->sign($data, 'RSA2');
 
         return $data;
+    }
+
+    public function getRiskRateInfo()
+    {
+        return $this->getParameter('riskRateInfo');
+    }
+
+    public function setRiskRateInfo($value)
+    {
+        return $this->setParameter('riskRateInfo', $value);
+    }
+    
+    public function getPlainRiskRateInfo()
+    {
+        $data = $this->getRiskRateInfo();
+        if (empty($data)) {
+            return '';
+        }
+        return base64_encode("{" . urldecode(http_build_query($data)) . "}");
     }
 
 
     private function validateData()
     {
-        $this->validate('returnUrl', 'notifyUrl', 'merId', 'orderId', 'txnTime', 'orderDesc', 'txnAmt');
+        $this->validate('returnUrl', 'notifyUrl', 'merId', 'orderId', 'txnTime', 'txnAmt');
     }
 
 

@@ -3,11 +3,11 @@
 namespace Omnipay\UnionPay\Common;
 
 /**
- * Response Verify Helper for UnionPay
- * Class ResponseVerifyHelper
+ * Response Helper for UnionPay
+ * Class ResponseHelper
  * @package Omnipay\UnionPay\Common
  */
-class ResponseVerifyHelper
+class ResponseHelper
 {
     public static function verify($data, $env, $rootCert, $middleCert)
     {
@@ -60,6 +60,18 @@ class ResponseVerifyHelper
             return boolval($isSuccess);
         } else {
             return false;
+        }
+    }
+
+    public static function codeFromRespMsg($data)
+    {
+        if (!array_key_exists('respMsg', $data)) {
+            return null;
+        }
+        if (preg_match("/\[(\d*)\]$/", $data['respMsg'], $arr)) {
+            return $arr[1];
+        } else {
+            return null;
         }
     }
 }
