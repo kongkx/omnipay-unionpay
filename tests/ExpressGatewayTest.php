@@ -6,6 +6,9 @@ use Omnipay\Omnipay;
 use Omnipay\Tests\GatewayTestCase;
 use Omnipay\UnionPay\ExpressGateway;
 use Omnipay\UnionPay\Message\ExpressPurchaseResponse;
+use Behat\Mink\Mink;
+use Behat\Mink\Session;
+use DMore\ChromeDriver\ChromeDriver;
 
 class ExpressGatewayTest extends GatewayTestCase
 {
@@ -15,6 +18,8 @@ class ExpressGatewayTest extends GatewayTestCase
     protected $gateway;
 
     protected $options;
+
+    protected $mink;
 
 
     public function setUp()
@@ -39,26 +44,23 @@ class ExpressGatewayTest extends GatewayTestCase
         ];
 
         date_default_timezone_set('PRC');
+
+        $this->mink = new Mink(array(
+            'browser' => new Session(new ChromeDriver('http://localhost:9222', null, ''))
+        ));
+        $this->mink->setDefaultSessionName('browser');
     }
 
-    private function open($content)
+    private function writeForm($content)
     {
         $file = sprintf('./%s.html', md5(uniqid()));
-        return;
         $fh = fopen($file, 'w');
         fwrite($fh, $content);
         fclose($fh);
 
-        exec(sprintf('open %s -a "/Applications/Google Chrome.app" && sleep 5 && rm %s', $file, $file));
-    }
+        $path = realpath($file);
 
-    private function codeFromRespMsg($str)
-    {
-        if (preg_match("/\[(\d*)\]$/", $str, $arr)) {
-            return $arr[1];
-        } else {
-            return null;
-        }
+        return $path;
     }
 
 
@@ -84,7 +86,40 @@ class ExpressGatewayTest extends GatewayTestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertTrue($response->isRedirect());
         $this->assertNotEmpty($response->getRedirectHtml());
-        $this->open($response->getRedirectHtml());
+        $form = $response->getRedirectHtml();
+
+        $file = $this->writeForm($form);
+        $session = $this->mink->getSession();
+        $session->visit('file://'.$file);
+        $session->wait('1000');
+        $url = $session->getCurrentUrl();
+
+        $urlMatched = (bool) preg_match(
+            '/^https:\/\/cashier.test.95516.com\/b2c\/index.action?/',
+            $url
+        );
+        $this->assertTrue($urlMatched);
+
+        $page = $session->getPage();
+        $page->findById('cardNumber')->setValue('6226090000000048');
+        $page->findById('btnNext')->click();
+        $session->wait('2000');
+        $page->findById('realName')->setValue('张三');
+        $page->findById('credentialNo')->setValue('510265790128303');
+        $page->findById('btnGetCode')->click();
+        $page->findById('smsCode')->setValue('111111');
+        $session->wait('500');
+        $page->findById('btnCardPay')->click();
+        $session->wait('1000');
+
+
+        $session->stop();
+        exec(sprintf('rm %s', $file));
+
+        return [
+            'params' => $params
+        ];
+
     }
 
 //
@@ -104,12 +139,14 @@ class ExpressGatewayTest extends GatewayTestCase
 //        $this->assertFalse($response->isSuccessful());
 //    }
 
-
-    public function testQuery()
+    /**
+     * @depends testPurchase
+     */
+    public function testQuery($purData)
     {
         $params = array(
-            'orderId' => $this->options['orderId'],
-            'txnTime' => $this->options['txnTime']
+            'orderId' => $purData['params']['orderId'],
+            'txnTime' => $purData['params']['txnTime']
         );
 
         /**
@@ -121,16 +158,23 @@ class ExpressGatewayTest extends GatewayTestCase
 
         $code = $response->getCodeFromRespMsg();
         $this->assertNotEquals("6100030", $code, $data['respMsg']);  // 报文格式错误
+
+        return [
+            'params' => $params,
+            'response' => $data,
+        ];
     }
 
-
-    public function testConsumeUndo()
+    /**
+     * @depends testQuery
+     */
+    public function testConsumeUndo($queryData)
     {
         $orderId = date('YmdHis');
         $params = array(
             'orderId' => $orderId,
             'txnTime' => $orderId,
-            'queryId' => '761906160131325386289',
+            'queryId' => $queryData['response']['queryId'],
             'txnAmt'  => '100',
         );
 
@@ -141,19 +185,21 @@ class ExpressGatewayTest extends GatewayTestCase
         $data = $response->getData();
         $this->assertTrue($data['verify_success']);
 
-        $code = $this->codeFromRespMsg($data['respMsg']);
+        $code = $response->getCodeFromRespMsg();
 
         $this->assertNotEquals("6100030", $code, $data['respMsg']);  // 报文格式错误
     }
 
-
-    public function testRefund()
+    /**
+     * @depends testQuery
+     */
+    public function testRefund($queryData)
     {
         $orderId = date('YmdHis');
         $options = array(
             'orderId' => $orderId,
             'txnTime' => $orderId,
-            'queryId' => '761906160131325386289',
+            'queryId' => $queryData['response']['queryId'],
             'txnAmt'  => '100',
         );
 
@@ -166,7 +212,7 @@ class ExpressGatewayTest extends GatewayTestCase
 
         $this->assertTrue($data['verify_success']);
 
-        $code = $this->codeFromRespMsg($data['respMsg']);
+        $code = $response->getCodeFromRespMsg();
 
         $this->assertNotEquals("6100030", $code, $data['respMsg']);  // 报文格式错误
     }
@@ -186,7 +232,7 @@ class ExpressGatewayTest extends GatewayTestCase
         $data = $response->getData();
 
         $this->assertTrue($data['verify_success']);
-        $code = $this->codeFromRespMsg($data['respMsg']);
+        $code = $response->getCodeFromRespMsg();
         $this->assertNotEquals("6100030", $code, $data['respMsg']);  // 报文格式错误
     }
 }

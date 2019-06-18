@@ -2,7 +2,6 @@
 
 namespace Omnipay\UnionPay\Tests;
 
-use function GuzzleHttp\Promise\exception_for;
 use Omnipay\Omnipay;
 use Omnipay\Tests\GatewayTestCase;
 use Omnipay\UnionPay\WtzGateway;
@@ -63,15 +62,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $path = realpath($file);
 
         return $path;
-    }
-
-    private function codeFromRespMsg($str)
-    {
-        if (preg_match("/\[(\d*)\]$/", $str, $arr)) {
-            return $arr[1];
-        } else {
-            return null;
-        }
     }
 
 
