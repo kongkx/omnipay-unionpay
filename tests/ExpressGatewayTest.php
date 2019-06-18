@@ -38,11 +38,6 @@ class ExpressGatewayTest extends GatewayTestCase
         $this->gateway->setNotifyUrl('http://www.specialUrl.com');
         $this->gateway->setEnvironment('sandbox');
 
-        $this->options = [
-            'orderId' => getenv('UNIONPAY_EXPRESS_ORDER_ID') ?: '20190616013132',
-            'txnTime' => getenv('UNIONPAY_EXPRESS_TXN_TIME') ?: '20190616013132',
-        ];
-
         date_default_timezone_set('PRC');
 
         $this->mink = new Mink(array(
@@ -119,7 +114,6 @@ class ExpressGatewayTest extends GatewayTestCase
         return [
             'params' => $params
         ];
-
     }
 
 //

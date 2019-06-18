@@ -40,33 +40,35 @@ And run composer to update your dependencies:
 
 Sandbox Param can be found at: [UnionPay Developer Center](https://open.unionpay.com/ajweb/account/testPara)
 
-### Prepare
+### Init Gateway
 
-How to get `PrivateKey`, `PublicKey`, `Cert ID`:
+```php
+$config = config('services.unionpay');
 
-```
-1. Prepare cert.pfx and its password, verify_sign_acp.cer
+$gateway = Omnipay::create('UnionPay_Express');
 
-2. Get Private Key
-$ openssl pkcs12 -in cert.pfx  -nocerts -nodes | openssl rsa -out private_key.pem
+$gateway->setMerId($config['merId']);
+$gateway->setEncryptSensitive(true); // base on merchance config;
 
-2. Public key is verify_sign_acp.cer
+// Sandbox
+$gateway->setCertPassword($config['signPassword']);
+$gateway->setCertPath($config['signPfx']);
 
-3. Get Cert ID
-$ openssl pkcs12 -in cert.pfx -clcerts -nokeys | openssl x509 -serial -noout // result hex eg: XXXXXXXXXX
-$ visit https://lokielse.github.io/hex2dec //Convert hex to decimal online
+// production
+// $gateway->setCertId($config['certId']);
+// $gateway->setPrivateKey($config['privateKey']);
+// $gateway->setEnvironment('production');
+
+$gateway->setEncryptCert($config['encryptKey']);
+$gateway->setRootCert($config['rootKey']);
+$gateway->setMiddleCert($config['middleKey']);
+
+return $gateway;
 ```
 
 ### Consume
 
 ```php
-$gateway    = Omnipay::create('UnionPay_Express');
-$gateway->setMerId($config['merId']);
-$gateway->setCertId($config['certId']);
-$gateway->setPrivateKey($config['privateKey']); // path or content
-$gateway->setReturnUrl($config['returnUrl']);
-$gateway->setNotifyUrl($config['notifyUrl']);
-
 $order = [
     'orderId'   => date('YmdHis'), //Your order ID
     'txnTime'   => date('YmdHis'), //Should be format 'YmdHis'
@@ -89,10 +91,6 @@ $response->getTradeNo();
 Handle Return/Notification from UnionPay.
 
 ```php
-$gateway    = Omnipay::create('UnionPay_Express');
-$gateway->setMerId($config['merId']);
-$gateway->setPublicKey($config['publicKey']); // path or content
-
 $response = $gateway->completePurchase(['request_params'=>$_REQUEST])->send();
 
 if ($response->isPaid()) {
@@ -122,7 +120,7 @@ $response = $gateway->consumeUndo([
     'orderId' => '20150815121214', //Your site trade no, not union tn.
     'txnTime' => date('YmdHis'), //Regenerate a new time
     'txnAmt'  => '200', //Order total fee
-    'queryId' => 'xxxxxxxxx', //Order total fee
+    'queryId' => 'xxxxxxxxx', // from order query or notification
 ])->send();
 
 var_dump($response->isSuccessful());
@@ -333,8 +331,6 @@ or better yet, fork the library and submit a pull request.
   export UNIONPAY_WTZ_TOKEN_ORDER_ID={orderId} # 供 token 版测试使用，完成一次 frontOpen, 记下该 `orderId`
   export UNIONPAY_WTZ_TOKEN_TXN_TIME={txnTime} # 供 token 版测试使用，完成一次 frontOpen, 记下该 `txnTime`
   export UNIONPAY_EXPRESS_MER_ID={anotherMerId} 
-  export UNIONPAY_EXPRESS_ORDER_ID={anotherOrderId} 
-  export UNIONPAY_EXPRESS_TXN_TIME={anotherTxnTime}
   phpunit 
   ```
 
