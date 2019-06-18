@@ -2,9 +2,13 @@
 
 namespace Omnipay\UnionPay\Tests;
 
+use function GuzzleHttp\Promise\exception_for;
 use Omnipay\Omnipay;
 use Omnipay\Tests\GatewayTestCase;
 use Omnipay\UnionPay\WtzGateway;
+use Behat\Mink\Mink;
+use Behat\Mink\Session;
+use DMore\ChromeDriver\ChromeDriver;
 
 class WtzTokenGatewayTest extends GatewayTestCase
 {
@@ -16,6 +20,8 @@ class WtzTokenGatewayTest extends GatewayTestCase
 
     protected $options;
 
+    protected $mink;
+
 
     public function setUp()
     {
@@ -24,6 +30,7 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $this->gateway->setMerId(UNIONPAY_WTZ_MER_ID);
         $this->gateway->setEncryptSensitive(true);
         $this->gateway->setBizType('000902');
+        $this->gateway->setTrId('99988877766');
         $this->gateway->setEncryptCert(UNIONPAY_510_ENCRYPT_CERT);
         $this->gateway->setMiddleCert(UNIONPAY_510_MIDDLE_CERT);
         $this->gateway->setRootCert(UNIONPAY_510_ROOT_CERT);
@@ -39,17 +46,23 @@ class WtzTokenGatewayTest extends GatewayTestCase
         ];
 
         date_default_timezone_set('PRC');
+        $this->mink = new Mink(array(
+            'browser' => new Session(new ChromeDriver('http://localhost:9222', null, ''))
+        ));
+        $this->mink->setDefaultSessionName('browser');
     }
 
 
-    private function open($content)
+    private function writeForm($content)
     {
-        return $file = sprintf('./%s.html', md5(uniqid()));
+        $file = sprintf('./%s.html', md5(uniqid()));
         $fh = fopen($file, 'w');
         fwrite($fh, $content);
         fclose($fh);
 
-        exec(sprintf('open %s -a "/Applications/Google Chrome.app" && sleep 5 && rm %s', $file, $file));
+        $path = realpath($file);
+
+        return $path;
     }
 
     private function codeFromRespMsg($str)
@@ -72,7 +85,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
             'orderId'      => $orderId,
             'txnTime'      => date('YmdHis'),
             'txnAmt'       => '100',
-            'trId'         => '99988877766',
             'accNo'        => '6226090000000048',
             'payTimeout'   => date('YmdHis', strtotime('+15 minutes')),
             'customerInfo' => array(
@@ -91,7 +103,19 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $response = $this->gateway->frontOpenConsume($params)->send();
         $this->assertTrue($response->isSuccessful());
         $form = $response->getRedirectForm();
-        $this->open($form);
+        $file = $this->writeForm($form);
+        $session = $this->mink->getSession();
+        $session->visit('file://'.$file);
+
+        $session->wait('1000');
+        $url = $session->getCurrentUrl();
+        $urlMatched = (bool) preg_match(
+            '/^https:\/\/cashier.test.95516.com\/b2c\/authpay\/ActivateAndPay.action?/',
+            $url
+        );
+        $this->assertTrue($urlMatched);
+        $session->stop();
+        exec(sprintf('rm %s', $file));
     }
 
 
@@ -104,7 +128,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $params = array(
             'orderId'    => $orderId,
             'txnTime'    => date('YmdHis'),
-            'trId'       => '99988877766',
             'accNo'      => '6226090000000048',
             'payTimeout' => date('YmdHis', strtotime('+15 minutes'))
         );
@@ -115,7 +138,36 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $response = $this->gateway->frontOpen($params)->send();
         $this->assertTrue($response->isSuccessful());
         $form = $response->getRedirectForm();
-        $this->open($form);
+        $file = $this->writeForm($form);
+        $session = $this->mink->getSession();
+        $session->visit('file://'.$file);
+
+        $session->wait('1000');
+        $url = $session->getCurrentUrl();
+
+        // redirect page
+        $urlMatched = (bool) preg_match(
+            '/^https:\/\/cashier.test.95516.com\/b2c\/authpay\/Activate.action?/',
+            $url
+        );
+        $this->assertTrue($urlMatched);
+
+        // interact with page
+        $page = $session->getPage();
+        $page->findById('realName')->setValue('张三');
+        $page->findById('credentialNo')->setValue('510265790128303');
+        $page->findById('cellPhoneNumber')->setValue('18100000000');
+        $page->findById('btnGetCode')->click();
+        $session->wait('500');
+        $page->findById('smsCode')->setValue('111111');
+        $page->findById('btnCardPay')->click();
+        $session->wait('2000');
+        $session->stop();
+        exec(sprintf('rm %s', $file));
+
+        return [
+            'params' => $params,
+        ];
     }
 
 
@@ -126,7 +178,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $params = array(
             'orderId'      => date('YmdHis'),
             'txnTime'      => date('YmdHis'),
-            'trId'         => '62000000001',
             'accNo'        => '6226090000000048',
             'customerInfo' => array(
                 'phoneNo'    => '18100000000', //Phone Number
@@ -154,7 +205,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $params = array(
             'orderId'      => date('YmdHis'),
             'txnTime'      => date('YmdHis'),
-            'trId'         => '62000000001',
             'accNo'        => '6226090000000048',
             'customerInfo' => array(
                 'phoneNo'    => '18100000000', //Phone Number
@@ -188,13 +238,15 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $this->assertFalse($response->isSuccessful());
     }
 
-
-    public function testOpenQuery()
+    /**
+     * @depends testFrontOpen
+     */
+    public function testOpenQuery($openData)
     {
         $params = array(
             'txnSubType' => '02',
-            'orderId' => $this->options['orderId'],
-            'txnTime' => $this->options['txnTime'],
+            'orderId' => $openData['params']['orderId'],
+            'txnTime' => $openData['params']['txnTime'],
         );
 
         /**
@@ -223,7 +275,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
             'orderId' => date('YmdHis'),
             'txnTime' => date('YmdHis'),
             'txnAmt'  => 100,
-            'trId'    => '99988877766',
             'token'   => $preData['tokenPayData']['token'],
         );
 
@@ -245,7 +296,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
             'orderId' => date('YmdHis'),
             'txnTime' => date('YmdHis'),
             'txnAmt'  => 100,
-            'trId'    => '99988877766',
             'token'   => $preData['tokenPayData']['token'],
             'customerInfo' => ['smsCode' => '111111']
         );
@@ -314,13 +364,14 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $this->assertNotEquals("6100030", $response->getCodeFromRespMsg(), $data['respMsg']);
     }
 
-
-    public function testApplyToken()
+    /**
+     * @depends testFrontOpen
+     */
+    public function testApplyToken($openData)
     {
         $params = array(
-            'orderId' => $this->options['orderId'],
-            'txnTime' => $this->options['txnTime'],
-            'trId'    => '99988877766',
+            'orderId' => $openData['params']['orderId'],
+            'txnTime' => $openData['params']['txnTime'],
         );
 
         /**
@@ -339,7 +390,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $params = array(
             'orderId' => $this->options['orderId'],
             'txnTime' => $this->options['txnTime'],
-            'trId'    => '99988877766',
             'token'   => $queryData['tokenPayData']['token'],
         );
 
@@ -358,7 +408,6 @@ class WtzTokenGatewayTest extends GatewayTestCase
         $params = array(
             'orderId' => $this->options['orderId'],
             'txnTime' => $this->options['txnTime'],
-            'trId'    => '99988877766',
             'token'   => $queryData['tokenPayData']['token'],
         );
 

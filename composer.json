@@ -35,6 +35,7 @@
   },
   "require-dev": {
     "omnipay/tests": "^3.0",
-    "squizlabs/php_codesniffer": "3.*"
+    "squizlabs/php_codesniffer": "3.*",
+    "dmore/chrome-mink-driver": "^2.7"
   }
 }

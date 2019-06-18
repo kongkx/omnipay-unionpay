@@ -40,6 +40,16 @@ class WtzGateway extends ExpressGateway
         );
     }
 
+    public function setTrId($value)
+    {
+        return $this->setParameter('trId', $value);
+    }
+
+    public function getTrId()
+    {
+        return $this->getParameter('trId');
+    }
+
 
     /**
      * 银联侧开通：前台交易，有前台通知，后通知

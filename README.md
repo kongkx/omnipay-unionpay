@@ -1,12 +1,17 @@
 # Omnipay: UnionPay
 
-在 [lokielse/omnipay-unionpay](https://github.com/lokielse/omnipay-unionpay) 的基础上更新
-
 [![Build Status](https://travis-ci.org/kongkx/omnipay-unionpay.png?branch=master)](https://travis-ci.org/kongkx/omnipay-unionpay)
 [![Latest Stable Version](https://poser.pugx.org/kongkx/omnipay-unionpay/version.png)](https://packagist.org/packages/kongkx/omnipay-unionpay)
 [![Total Downloads](https://poser.pugx.org/kongkx/omnipay-unionpay/d/total.png)](https://packagist.org/packages/kongkx/omnipay-unionpay)
 
 **UnionPay driver for the Omnipay PHP payment processing library**
+
+在 [lokielse/omnipay-unionpay](https://github.com/lokielse/omnipay-unionpay) 的基础上更新
+
+清理老网关接口，仅支持一下银联API
+
+- Union_Wtz (Union No Redirect Payment) 银联无跳转支付（alpha）Version: 5.1.0
+- Union_Express (Union Express Payment) 银联全产品网关（PC，APP，WAP 支付） Version: 5.1.0
 
 [Omnipay](https://github.com/omnipay/omnipay) is a framework agnostic, multi-gateway payment
 processing library for PHP 7.1+. This package implements UnionPay support for Omnipay.
@@ -19,7 +24,7 @@ to your `composer.json` file:
 ```json
 {
   "require": {
-    "kongkx/omnipay-unionpay": "^0.4"
+    "kongkx/omnipay-unionpay": "^3.1.0"
   }
 }
 ```
@@ -28,13 +33,6 @@ And run composer to update your dependencies:
 
     $ curl -s http://getcomposer.org/installer | php
     $ php composer.phar update
-
-## Basic Usage
-
-The following gateways are provided by this package:
-
-- Union_Wtz (Union No Redirect Payment) 银联无跳转支付（alpha）Version: 5.1.0
-- Union_Express (Union Express Payment) 银联全产品网关（PC，APP，WAP 支付） Version: 5.1.0
 
 ## Express Gateway Usage
 
@@ -47,9 +45,9 @@ Sandbox Param can be found at: [UnionPay Developer Center](https://open.unionpay
 How to get `PrivateKey`, `PublicKey`, `Cert ID`:
 
 ```
-0. Prepare cert.pfx and its password, verify_sign_acp.cer
+1. Prepare cert.pfx and its password, verify_sign_acp.cer
 
-1. Get Private Key
+2. Get Private Key
 $ openssl pkcs12 -in cert.pfx  -nocerts -nodes | openssl rsa -out private_key.pem
 
 2. Public key is verify_sign_acp.cer
@@ -329,13 +327,15 @@ or better yet, fork the library and submit a pull request.
 
 - 测试默认使用银联Demo 的商户号进行测试，但建议使用自己申请的商户号，通过环境变量传入。
 
-  1. `UNIONPAY_WTZ_MER_ID` 测试商户号
-  2. `UNIONPAY_WTZ_TOKEN_ORDER_ID` 供 token 版测试使用，完成一次 frontOpen, 记下该 `orderId`
-  3. `UNIONPAY_WTZ_TOKEN_TXN_TIME` 供 token 版测试使用，完成一次 frontOpen, 记下该 `txnTime`
   
-  
-  ```php
-  UNIONPAY_WTZ_MER_ID={merId} UNIONPAY_WTZ_TOKEN_ORDER_ID={orderId} UNIONPAY_WTZ_TOKEN_TXN_TIME={txnTime} phpunit 
+  ```bash
+  export UNIONPAY_WTZ_MER_ID={merId}  #测试商户号
+  export UNIONPAY_WTZ_TOKEN_ORDER_ID={orderId} # 供 token 版测试使用，完成一次 frontOpen, 记下该 `orderId`
+  export UNIONPAY_WTZ_TOKEN_TXN_TIME={txnTime} # 供 token 版测试使用，完成一次 frontOpen, 记下该 `txnTime`
+  export UNIONPAY_EXPRESS_MER_ID={anotherMerId} 
+  export UNIONPAY_EXPRESS_ORDER_ID={anotherOrderId} 
+  export UNIONPAY_EXPRESS_TXN_TIME={anotherTxnTime}
+  phpunit 
   ```
 
 - 测试 只能保证 报文格式正确
